@@ -1,21 +1,24 @@
 package com.dorm.internetbot.telegram;
 
 import com.dorm.internetbot.config.BotConfig;
-import jakarta.annotation.PostConstruct;
+import com.dorm.internetbot.states.BotState;
+import com.dorm.internetbot.states.UserState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Component
 public class InternetBot extends TelegramLongPollingBot {
 
-    private final String ID_OUR_CHANNEL = "-1002208721735";
-    private final String OK = "OK";
+    private static final String ID_OUR_CHANNEL = "-1002208721735";
+    private static final String ID_SPAM_CHANNEL = "-1002150155712";
+    private static final String OK = "OK";
+    private static final String COMMAND_ERROR = "Incorrect command";
 
     @Autowired
     private BotConfig botConfig;
@@ -23,21 +26,56 @@ public class InternetBot extends TelegramLongPollingBot {
     @Autowired
     private SendMessage sendMessage;
 
+    @Autowired
+    private SendPhoto sendPhoto;
+    @Autowired
+    private ForwardMessage forwardMessage;
+
+    @Autowired
+    private UserState userState;
+
+    @Autowired
+    private BotState botState;
+
     @Override
     public void onUpdateReceived(Update update) {
         if(update.hasMessage() && update.getMessage().hasText()){
             String message = update.getMessage().getText();
+            Integer messageId = update.getMessage().getMessageId();
             Long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getChat().getUserName();
-
-            switch (message){
-                case "/start":
-                    start(update.getMessage().getChat().getFirstName(), chatId);
-                    break;
-                default:
-                    sendAnswer(chatId, OK);
-                    redirect(username, message);
+            if (userState.getStateMap().get(chatId) == null){ // мегоговно
+                userState.setStateMap(chatId, BotState.DEFAULT);
             }
+
+            if (userState.getStateMap().get(chatId).equals(BotState.WAIT_MESSAGE)){
+                // TODO обработчик ошибок пользователя
+                redirect(username, messageId, chatId);
+                sendAnswer(chatId, OK);
+                userState.setStateMap(chatId, BotState.DEFAULT);
+            }else {
+                if (message.startsWith("/")){
+                    //String command = message.substring(0, message.indexOf(" "));
+                    switch (message){
+                        case "/start":
+                            start(update.getMessage().getChat().getFirstName(), chatId);
+                            break;
+                        case "/help":
+                            help(chatId);
+                            break;
+                        case "/contact_us"://TODO ждать нового сообщения
+                            userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
+                            sendAnswer(chatId, "Enter your problem " +
+                                    "starting from room number\n" +
+                                    "For example: 312-a I have any problems with my internet");
+                            break;
+                        default:
+                            sendAnswer(chatId, COMMAND_ERROR);
+                            spam(messageId, chatId);
+                    }
+                }
+            }
+
         }
 
     }
@@ -56,6 +94,7 @@ public class InternetBot extends TelegramLongPollingBot {
         //String message = "OK";
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(message);
+
         try {
             execute(sendMessage);
         } catch (TelegramApiException e){
@@ -64,22 +103,50 @@ public class InternetBot extends TelegramLongPollingBot {
     }
 
     private void start(String username, Long chatId){
-        String answer = "Hello, " + username + "!";
+        String answer = "Hello, " + username + "!\n" +
+                "This is helpInternetBot\n" +
+                "You might use these commands:\n" +
+                "/help - list of commands\n" +
+                "/contact_us - contact with admins";
         sendAnswer(chatId, answer);
     }
 
-    private void redirect(String username, String message){
-        String answer = "@" + username + "\n" + message;
-        sendMessage.setChatId(ID_OUR_CHANNEL);
-        sendMessage.setText(answer);
+    private void redirect(String username, Integer messageId, Long chatId){
+        String answer = "@" + username + "\n";
+        forwardMessage.setChatId(ID_OUR_CHANNEL);
+        forwardMessage.setFromChatId(chatId);
+        forwardMessage.setMessageId(messageId);
+
         try {
-            execute(sendMessage);
+            execute(forwardMessage);
+
         } catch (TelegramApiException e){
 
         }
     }
 
+    private void spam(Integer messageId, Long chatId){
+        forwardMessage.setChatId(ID_SPAM_CHANNEL);
+        forwardMessage.setFromChatId(chatId);
+        forwardMessage.setMessageId(messageId);
+        try{
+            execute(forwardMessage);
+        } catch (TelegramApiException e){
 
+        }
+    }
+
+    private void help(Long chatId){
+        String answer = "/help - list of commands\n" +
+                "/contact_us - contact with admins";
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(answer);
+        try{
+            execute(sendMessage);
+        } catch (TelegramApiException e){
+
+        }
+    }
 
 
 }

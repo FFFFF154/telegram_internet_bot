@@ -23,7 +23,7 @@ public class BotInitializer {
 
 
     @EventListener({ContextRefreshedEvent.class})
-    private void init() throws TelegramApiException{
+    public void init() throws TelegramApiException{
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
             telegramBotsApi.registerBot(internetBot);
