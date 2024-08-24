@@ -39,11 +39,12 @@ public class InternetBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage() && update.getMessage().hasText()){
+        if(update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()){
             String message = update.getMessage().getText();
             Integer messageId = update.getMessage().getMessageId();
             Long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getChat().getUserName();
+
             if (userState.getStateMap().get(chatId) == null){ // мегоговно
                 userState.setStateMap(chatId, BotState.DEFAULT);
             }
@@ -53,29 +54,34 @@ public class InternetBot extends TelegramLongPollingBot {
                 redirect(username, messageId, chatId);
                 sendAnswer(chatId, OK);
                 userState.setStateMap(chatId, BotState.DEFAULT);
-            }else {
-                if (message.startsWith("/")){
-                    //String command = message.substring(0, message.indexOf(" "));
-                    switch (message){
-                        case "/start":
-                            start(update.getMessage().getChat().getFirstName(), chatId);
-                            break;
-                        case "/help":
-                            help(chatId);
-                            break;
-                        case "/contact_us"://TODO ждать нового сообщения
-                            userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
-                            sendAnswer(chatId, "Enter your problem " +
-                                    "starting from room number\n" +
-                                    "For example: 312-a I have any problems with my internet");
-                            break;
-                        default:
-                            sendAnswer(chatId, COMMAND_ERROR);
-                            spam(messageId, chatId);
+            }else if (message.startsWith("/")){
+                //String command = message.substring(0, message.indexOf(" "));
+                switch (message){
+                    case "/start":
+                        start(update.getMessage().getChat().getFirstName(), chatId);
+                        break;
+                    case "/help":
+                        help(chatId);
+                        break;
+                    case "/contact_us"://TODO ждать нового сообщения
+                        userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
+                        sendAnswer(chatId, "Enter your problem " +
+                                "starting from room number\n" +
+                                "For example: 312-a I have any problems with my internet");
+                        break;
+                    default:
+                        sendAnswer(chatId, COMMAND_ERROR);
+                        spam(messageId, chatId);
                     }
-                }
+
+            } else {
+                sendAnswer(chatId, "Please, enter the command");
+                spam(messageId, chatId);
             }
 
+        } else if (update.getMessage().hasPhoto()){ // мегахуйня
+            Long chatId = update.getMessage().getChatId();
+            sendAnswer(chatId, "Please, dont enter the photo");
         }
 
     }
