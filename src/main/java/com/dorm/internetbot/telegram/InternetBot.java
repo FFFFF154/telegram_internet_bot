@@ -39,47 +39,53 @@ public class InternetBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if(update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()){
+        if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
             String message = update.getMessage().getText();
             Integer messageId = update.getMessage().getMessageId();
             Long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getChat().getUserName();
 
-            if (userState.getStateMap().get(chatId) == null){ // мегоговно
+            if (userState.getStateMap().get(chatId) == null) { // мегоговно
                 userState.setStateMap(chatId, BotState.DEFAULT);
             }
 
-            if (userState.getStateMap().get(chatId).equals(BotState.WAIT_MESSAGE)){
-                // TODO обработчик ошибок пользователя
-                redirect(username, messageId, chatId);
-                sendAnswer(chatId, OK);
-                userState.setStateMap(chatId, BotState.DEFAULT);
-            }else if (message.startsWith("/")){
+            if (userState.getStateMap().get(chatId).equals(BotState.WAIT_MESSAGE)) {
+                if (checkMessage(message)) {
+                    redirect(username, messageId, chatId);
+                    sendAnswer(chatId, OK);
+                    userState.setStateMap(chatId, BotState.DEFAULT);
+                } else {
+                    sendAnswer(chatId, "Пожалуйста, введите корректный запрос " +
+                            "Например: 312(а) У меня проблемы с интернетом");
+                    spam(messageId, chatId);
+                }
+
+            } else if (message.startsWith("/")) {
                 //String command = message.substring(0, message.indexOf(" "));
-                switch (message){
+                switch (message) {
                     case "/start":
                         start(update.getMessage().getChat().getFirstName(), chatId);
                         break;
                     case "/help":
                         help(chatId);
                         break;
-                    case "/contact_us"://TODO ждать нового сообщения
+                    case "/contact_us":
                         userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
                         sendAnswer(chatId, "Enter your problem " +
                                 "starting from room number\n" +
-                                "For example: 312-a I have any problems with my internet");
+                                "For example: 312(a) I have any problems with my internet");
                         break;
                     default:
                         sendAnswer(chatId, COMMAND_ERROR);
                         spam(messageId, chatId);
-                    }
+                }
 
             } else {
                 sendAnswer(chatId, "Please, enter the command");
                 spam(messageId, chatId);
             }
 
-        } else if (update.getMessage().hasPhoto()){ // мегахуйня
+        } else if (update.getMessage().hasPhoto()) { // мегахуйня
             Long chatId = update.getMessage().getChatId();
             sendAnswer(chatId, "Please, dont enter the photo");
         }
@@ -96,19 +102,19 @@ public class InternetBot extends TelegramLongPollingBot {
         return botConfig.getToken();
     }
 
-    private void sendAnswer(Long chatId, String message){
+    private void sendAnswer(Long chatId, String message) {
         //String message = "OK";
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(message);
 
         try {
             execute(sendMessage);
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
 
         }
     }
 
-    private void start(String username, Long chatId){
+    private void start(String username, Long chatId) {
         String answer = "Hello, " + username + "!\n" +
                 "This is helpInternetBot\n" +
                 "You might use these commands:\n" +
@@ -117,7 +123,7 @@ public class InternetBot extends TelegramLongPollingBot {
         sendAnswer(chatId, answer);
     }
 
-    private void redirect(String username, Integer messageId, Long chatId){
+    private void redirect(String username, Integer messageId, Long chatId) {
         String answer = "@" + username + "\n";
         forwardMessage.setChatId(ID_OUR_CHANNEL);
         forwardMessage.setFromChatId(chatId);
@@ -126,32 +132,63 @@ public class InternetBot extends TelegramLongPollingBot {
         try {
             execute(forwardMessage);
 
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
 
         }
     }
 
-    private void spam(Integer messageId, Long chatId){
+    private void spam(Integer messageId, Long chatId) {
         forwardMessage.setChatId(ID_SPAM_CHANNEL);
         forwardMessage.setFromChatId(chatId);
         forwardMessage.setMessageId(messageId);
-        try{
+        try {
             execute(forwardMessage);
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
 
         }
     }
 
-    private void help(Long chatId){
+    private void help(Long chatId) {
         String answer = "/help - list of commands\n" +
                 "/contact_us - contact with admins";
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
-        try{
+        try {
             execute(sendMessage);
-        } catch (TelegramApiException e){
+        } catch (TelegramApiException e) {
 
         }
+    }
+
+    private boolean checkMessage(String message) {
+        if (!message.contains("(")) { // говно
+            try {
+                int roomNumber = Integer.parseInt(message.substring(0, message.indexOf(" ")));
+                return (roomNumber % 100 == 6) || (roomNumber % 100 == 10)
+                        || (roomNumber % 100 == 15) && (roomNumber / 100 <= 15)
+                        && (roomNumber / 100 >= 3);
+            } catch (Exception e) {
+                return false;
+            }
+
+        } else if ((message.indexOf("(") == 3) || (message.indexOf("(") == 4)) {
+            try {
+                int roomNumber = Integer.parseInt(message.substring(0, message.indexOf("(")));
+                return ((roomNumber >= 301 && roomNumber <= 1515)
+                        && (message.charAt(message.indexOf("(") + 1) == 'а'
+                        || message.charAt(message.indexOf("(") + 1) == 'б'
+                        || message.charAt(message.indexOf("(") + 1) == 'a'
+                        || message.charAt(message.indexOf("(") + 1) == 'b')
+                        && (roomNumber % 100 > 0)
+                        && (roomNumber % 100 <= 15));
+            } catch (Exception e) {
+                return false;
+            }
+
+        }
+
+
+        return false;
     }
 
 
