@@ -81,7 +81,7 @@ public class InternetBot extends TelegramLongPollingBot {
                                 "начиная с номера комнаты\n" +
                                 "Например: 312(а) У меня проблемы с подключением интернета");
                         break;
-                    case "/guides":
+                    case "/guide":
                         sendGuide(chatId);
                         break;
                     default:
@@ -161,7 +161,7 @@ public class InternetBot extends TelegramLongPollingBot {
     private void help(Long chatId) {
         String answer = "/help - список команд\n" +
                 "/contact_us - связаться с админами\n" +
-                "/guid - гайды по подключению интернета";
+                "/guide - гайд по подключению интернета";
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
         try {
