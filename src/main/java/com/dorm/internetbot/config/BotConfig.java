@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 
@@ -35,18 +36,23 @@ public class BotConfig {
     }
 
     @Bean
-    public ForwardMessage forwardMessage(){
+    public ForwardMessage forwardMessage() {
         return new ForwardMessage();
     }
 
     @Bean
-    public BotState botState (){
+    public BotState botState() {
         return BotState.DEFAULT;
     }
 
     @Bean
-    public UserState userState (){
+    public UserState userState() {
         return new UserState();
+    }
+
+    @Bean
+    public SendDocument sendDocument(){
+        return new SendDocument();
     }
 
 }

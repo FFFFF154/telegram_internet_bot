@@ -7,10 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.File;
+import java.net.URL;
 
 @Component
 public class InternetBot extends TelegramLongPollingBot {
@@ -18,7 +23,7 @@ public class InternetBot extends TelegramLongPollingBot {
     private static final String ID_OUR_CHANNEL = "-1002208721735";
     private static final String ID_SPAM_CHANNEL = "-1002150155712";
     private static final String OK = "OK";
-    private static final String COMMAND_ERROR = "Incorrect command";
+    private static final String COMMAND_ERROR = "Неверная команда";
 
     @Autowired
     private BotConfig botConfig;
@@ -35,7 +40,7 @@ public class InternetBot extends TelegramLongPollingBot {
     private UserState userState;
 
     @Autowired
-    private BotState botState;
+    private SendDocument sendDocument;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -62,6 +67,7 @@ public class InternetBot extends TelegramLongPollingBot {
 
             } else if (message.startsWith("/")) {
                 //String command = message.substring(0, message.indexOf(" "));
+                message = message.toLowerCase();
                 switch (message) {
                     case "/start":
                         start(update.getMessage().getChat().getFirstName(), chatId);
@@ -71,9 +77,12 @@ public class InternetBot extends TelegramLongPollingBot {
                         break;
                     case "/contact_us":
                         userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
-                        sendAnswer(chatId, "Enter your problem " +
-                                "starting from room number\n" +
-                                "For example: 312(a) I have any problems with my internet");
+                        sendAnswer(chatId, "Опишите свою проблему, " +
+                                "начиная с номера комнаты\n" +
+                                "Например: 312(а) У меня проблемы с подключением интернета");
+                        break;
+                    case "/guides":
+                        sendGuide(chatId);
                         break;
                     default:
                         sendAnswer(chatId, COMMAND_ERROR);
@@ -81,13 +90,13 @@ public class InternetBot extends TelegramLongPollingBot {
                 }
 
             } else {
-                sendAnswer(chatId, "Please, enter the command");
+                sendAnswer(chatId, "Пожалуйста, отправьте команду");
                 spam(messageId, chatId);
             }
 
         } else if (update.getMessage().hasPhoto()) { // мегахуйня
             Long chatId = update.getMessage().getChatId();
-            sendAnswer(chatId, "Please, dont enter the photo");
+            sendAnswer(chatId, "Пожалуйста, не отправляйте фото");
         }
 
     }
@@ -115,16 +124,17 @@ public class InternetBot extends TelegramLongPollingBot {
     }
 
     private void start(String username, Long chatId) {
-        String answer = "Hello, " + username + "!\n" +
-                "This is helpInternetBot\n" +
-                "You might use these commands:\n" +
-                "/help - list of commands\n" +
-                "/contact_us - contact with admins";
+        String answer = "Привет, " + username + "!\n" +
+                "Это helpInternetBot\n" +
+                "Ты можешь использовать эти команды:\n" +
+                "/help - список команд\n" +
+                "/contact_us - связаться с админами\n" +
+                "/guide - гайд по подключению интернета";
         sendAnswer(chatId, answer);
     }
 
     private void redirect(String username, Integer messageId, Long chatId) {
-        String answer = "@" + username + "\n";
+        //String answer = "@" + username + "\n";
         forwardMessage.setChatId(ID_OUR_CHANNEL);
         forwardMessage.setFromChatId(chatId);
         forwardMessage.setMessageId(messageId);
@@ -149,8 +159,9 @@ public class InternetBot extends TelegramLongPollingBot {
     }
 
     private void help(Long chatId) {
-        String answer = "/help - list of commands\n" +
-                "/contact_us - contact with admins";
+        String answer = "/help - список команд\n" +
+                "/contact_us - связаться с админами\n" +
+                "/guid - гайды по подключению интернета";
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
         try {
@@ -189,6 +200,22 @@ public class InternetBot extends TelegramLongPollingBot {
 
 
         return false;
+    }
+
+    private void sendGuide(Long chatId) {
+        sendDocument.setChatId(chatId);
+
+        ClassLoader classLoader=getClass().getClassLoader();
+        URL resource = classLoader.getResource("Kak_podklyuchit_INET.pdf");
+
+        sendDocument.setDocument(new InputFile(new File(resource.getFile())));
+        //sendDocument.setDocument(new InputFile("C:\\Users\\dns\\Documents\\java\\internetBot\\src\\main\\resources\\gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf"));
+
+        try {
+            execute(sendDocument);
+        } catch (TelegramApiException e) {
+
+        }
     }
 
 
