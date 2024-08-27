@@ -81,8 +81,8 @@ public class InternetBot extends TelegramLongPollingBot {
                                 "начиная с номера комнаты\n" +
                                 "Например: 312(а) У меня проблемы с подключением интернета");
                         break;
-                    case "/guide":
-                        sendGuide(chatId);
+                    case "/guides":
+                        sendGuides(chatId);
                         break;
                     default:
                         sendAnswer(chatId, COMMAND_ERROR);
@@ -129,7 +129,7 @@ public class InternetBot extends TelegramLongPollingBot {
                 "Ты можешь использовать эти команды:\n" +
                 "/help - список команд\n" +
                 "/contact_us - связаться с админами\n" +
-                "/guide - гайд по подключению интернета";
+                "/guides - гайды по подключению интернета";
         sendAnswer(chatId, answer);
     }
 
@@ -161,7 +161,7 @@ public class InternetBot extends TelegramLongPollingBot {
     private void help(Long chatId) {
         String answer = "/help - список команд\n" +
                 "/contact_us - связаться с админами\n" +
-                "/guide - гайд по подключению интернета";
+                "/guides - гайды по подключению интернета";
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
         try {
@@ -202,7 +202,7 @@ public class InternetBot extends TelegramLongPollingBot {
         return false;
     }
 
-    private void sendGuide(Long chatId) {
+    private void sendGuides(Long chatId) {
         sendDocument.setChatId(chatId);
 
         ClassLoader classLoader=getClass().getClassLoader();
@@ -214,6 +214,12 @@ public class InternetBot extends TelegramLongPollingBot {
         try {
             execute(sendDocument);
         } catch (TelegramApiException e) {
+        }
+        resource = classLoader.getResource("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf");
+        sendDocument.setDocument(new InputFile(new File(resource.getFile())));
+        try{
+            execute(sendDocument);
+        } catch (TelegramApiException e){
 
         }
     }
