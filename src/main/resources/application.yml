@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: internetBot
+#  datasource:
+#    url: jdbc:mysql://localhost:3306
+#    username: root
+#    password: qwe123qwe123
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
+bot:
+  name: bot
+  token: 7447338999:AAGizRWxILxkSAalzETdAm5EcTci6hMI-J4
+
