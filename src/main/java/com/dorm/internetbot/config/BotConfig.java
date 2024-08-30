@@ -20,10 +20,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 public class BotConfig {
 
     @Value("${bot.name}")
-    private String botName;
+    private String botName ;
 
     @Value("${bot.token}")
-    private String token;
+    private String token ;
 
     @Bean
     public SendMessage sendMessage() {

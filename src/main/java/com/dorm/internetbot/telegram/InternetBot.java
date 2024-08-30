@@ -55,15 +55,21 @@ public class InternetBot extends TelegramLongPollingBot {
             }
 
             if (userState.getStateMap().get(chatId).equals(BotState.WAIT_MESSAGE)) {
-                if (checkMessage(message)) {
-                    redirect(username, messageId, chatId);
-                    sendAnswer(chatId, OK);
+                if (message.equals("/stop")){
                     userState.setStateMap(chatId, BotState.DEFAULT);
                 } else {
-                    sendAnswer(chatId, "Пожалуйста, введите корректный запрос " +
-                            "Например: 312(а) У меня проблемы с интернетом");
-                    spam(messageId, chatId);
+                    if (checkMessage(message)) {
+                        redirect(username, messageId, chatId);
+                        sendAnswer(chatId, OK);
+                        userState.setStateMap(chatId, BotState.DEFAULT);
+                    } else {
+                        sendAnswer(chatId, "Пожалуйста, введите корректный запрос\n" +
+                                "Например: 312(а) У меня проблемы с интернетом\n" +
+                                "Иначе введите /stop");
+                        spam(messageId, chatId);
+                    }
                 }
+
 
             } else if (message.startsWith("/")) {
                 //String command = message.substring(0, message.indexOf(" "));
