@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 
 @Configuration
 @Data
-@PropertySource(value = "classpath:application.yml")
+@PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class BotConfig {
 
     @Value("${bot.name}")
