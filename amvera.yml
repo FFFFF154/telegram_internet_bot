@@ -11,4 +11,4 @@ build:
 run:
   jarName: internetBot-0.0.1-SNAPSHOT-all.jar
   persistenceMount: /data
-  containerPort: 80
+  containerPort: 8080
