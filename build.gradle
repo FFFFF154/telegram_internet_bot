@@ -61,5 +61,9 @@ sourceSets {
     }
 }
 
+wrapper{
+    gradleVersion("7.6")
+}
+
 
 
