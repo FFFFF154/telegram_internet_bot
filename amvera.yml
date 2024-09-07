@@ -3,7 +3,7 @@ meta:
   environment: jvm
   toolchain:
     name: gradle
-    version: 22
+    version: 17
 build:
   artifacts:
     build/libs/*.jar: /
