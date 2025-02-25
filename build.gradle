@@ -12,7 +12,7 @@ version = '0.0.1-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
-        implementation = JvmImplementation.J9
+        //implementation = JvmImplementation.J9
     }
 }
 
@@ -63,7 +63,7 @@ sourceSets {
 }
 
 wrapper{
-    gradleVersion("7.6")
+    gradleVersion("8.6")
 }
 
 

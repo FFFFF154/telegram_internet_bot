@@ -3,6 +3,7 @@ package com.dorm.internetbot.telegram;
 import com.dorm.internetbot.config.BotConfig;
 import com.dorm.internetbot.states.BotState;
 import com.dorm.internetbot.states.UserState;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,8 +16,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
+@Slf4j
 @Component
 public class InternetBot extends TelegramLongPollingBot {
 
@@ -55,7 +62,7 @@ public class InternetBot extends TelegramLongPollingBot {
             }
 
             if (userState.getStateMap().get(chatId).equals(BotState.WAIT_MESSAGE)) {
-                if (message.equals("/stop")){
+                if (message.equals("/stop")) {
                     userState.setStateMap(chatId, BotState.DEFAULT);
                 } else {
                     if (checkMessage(message)) {
@@ -211,23 +218,35 @@ public class InternetBot extends TelegramLongPollingBot {
     private void sendGuides(Long chatId) {
         sendDocument.setChatId(chatId);
 
-        ClassLoader classLoader=getClass().getClassLoader();
-        URL resource = classLoader.getResource("Kak_podklyuchit_INET.pdf");
-
-        sendDocument.setDocument(new InputFile(new File(resource.getFile())));
-        //sendDocument.setDocument(new InputFile("C:\\Users\\dns\\Documents\\java\\internetBot\\src\\main\\resources\\gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf"));
-
-        try {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream resource = classLoader.getResourceAsStream("Kak_podklyuchit_INET.pdf")) {
+            Path tempFile = Files.createTempFile("inet", ".pdf");
+            //log.warn(tempFile.toString());
+            Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            File file = tempFile.toFile();
+            sendDocument.setDocument(new InputFile(file));
             execute(sendDocument);
+            Files.deleteIfExists(tempFile);
         } catch (TelegramApiException e) {
+            log.warn("Проблема с telegram api");
+        } catch (IOException e) {
+            log.warn("Проблема с чтением файла");
         }
-        resource = classLoader.getResource("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf");
-        sendDocument.setDocument(new InputFile(new File(resource.getFile())));
-        try{
-            execute(sendDocument);
-        } catch (TelegramApiException e){
 
+        ClassLoader classLoader2 = getClass().getClassLoader();
+        try (InputStream resource = classLoader2.getResourceAsStream("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf")) {
+            Path tempFile = Files.createTempFile("password", ".pdf");
+            Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            File file = tempFile.toFile();
+            sendDocument.setDocument(new InputFile(file));
+            execute(sendDocument);
+            Files.deleteIfExists(tempFile);
+        } catch (TelegramApiException e) {
+            log.warn("Проблема с telegram api");
+        } catch (IOException e) {
+            log.warn("Проблема с чтением файла");
         }
+
     }
 
 
