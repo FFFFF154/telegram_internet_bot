@@ -184,7 +184,7 @@ public class InternetBot extends TelegramLongPollingBot {
         }
     }
 
-    private boolean checkMessage(String message) {
+    public boolean checkMessage(String message) {
         if (!message.contains("(")) { // говно
             try {
                 int roomNumber = Integer.parseInt(message.substring(0, message.indexOf(" ")));
@@ -198,13 +198,18 @@ public class InternetBot extends TelegramLongPollingBot {
         } else if ((message.indexOf("(") == 3) || (message.indexOf("(") == 4)) {
             try {
                 int roomNumber = Integer.parseInt(message.substring(0, message.indexOf("(")));
-                return ((roomNumber >= 301 && roomNumber <= 1515)
-                        && (message.charAt(message.indexOf("(") + 1) == 'а'
-                        || message.charAt(message.indexOf("(") + 1) == 'б'
-                        || message.charAt(message.indexOf("(") + 1) == 'a'
-                        || message.charAt(message.indexOf("(") + 1) == 'b')
-                        && (roomNumber % 100 > 0)
-                        && (roomNumber % 100 <= 15));
+                if (roomNumber % 100 == 6 || roomNumber % 100 == 10 || roomNumber % 100 == 15){
+                    return false;
+                } else {
+                    return ((roomNumber >= 301 && roomNumber <= 1515)
+                            && (message.charAt(message.indexOf("(") + 1) == 'а'
+                            || message.charAt(message.indexOf("(") + 1) == 'б'
+                            || message.charAt(message.indexOf("(") + 1) == 'a'
+                            || message.charAt(message.indexOf("(") + 1) == 'b')
+                            && (roomNumber % 100 > 0)
+                            && (roomNumber % 100 <= 15));
+                }
+
             } catch (Exception e) {
                 return false;
             }
