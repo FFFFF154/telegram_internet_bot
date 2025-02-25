@@ -29,7 +29,6 @@ public class InternetBot extends TelegramLongPollingBot {
 
     private static final String ID_OUR_CHANNEL = "-1002208721735";
     private static final String ID_SPAM_CHANNEL = "-1002150155712";
-    private static final String OK = "OK";
     private static final String COMMAND_ERROR = "Неверная команда";
 
     @Autowired
@@ -67,11 +66,11 @@ public class InternetBot extends TelegramLongPollingBot {
                 } else {
                     if (checkMessage(message)) {
                         redirect(username, messageId, chatId);
-                        sendAnswer(chatId, OK);
+                        sendAnswer(chatId, "OK\n Мы с Вами свяжемся");
                         userState.setStateMap(chatId, BotState.DEFAULT);
                     } else {
                         sendAnswer(chatId, "Пожалуйста, введите корректный запрос\n" +
-                                "Например: 312(а) У меня проблемы с интернетом\n" +
+                                "Формат сообщения: 312(а) У меня проблемы с интернетом\n" +
                                 "Иначе введите /stop");
                         spam(messageId, chatId);
                     }
@@ -92,7 +91,7 @@ public class InternetBot extends TelegramLongPollingBot {
                         userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
                         sendAnswer(chatId, "Опишите свою проблему, " +
                                 "начиная с номера комнаты\n" +
-                                "Например: 312(а) У меня проблемы с подключением интернета");
+                                "Формат сообщения: 312(а) У меня проблемы с подключением интернета");
                         break;
                     case "/guides":
                         sendGuides(chatId);
