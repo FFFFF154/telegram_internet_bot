@@ -220,7 +220,7 @@ public class InternetBot extends TelegramLongPollingBot {
 
         ClassLoader classLoader = getClass().getClassLoader();
         try (InputStream resource = classLoader.getResourceAsStream("Kak_podklyuchit_INET.pdf")) {
-            Path tempFile = Files.createTempFile("inet", ".pdf");
+            Path tempFile = Files.createTempFile("inet_", ".pdf");
             //log.warn(tempFile.toString());
             Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
             File file = tempFile.toFile();
@@ -235,7 +235,7 @@ public class InternetBot extends TelegramLongPollingBot {
 
         ClassLoader classLoader2 = getClass().getClassLoader();
         try (InputStream resource = classLoader2.getResourceAsStream("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf")) {
-            Path tempFile = Files.createTempFile("password", ".pdf");
+            Path tempFile = Files.createTempFile("password_", ".pdf");
             Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
             File file = tempFile.toFile();
             sendDocument.setDocument(new InputFile(file));
