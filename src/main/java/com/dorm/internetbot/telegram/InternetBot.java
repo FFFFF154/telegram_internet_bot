@@ -201,12 +201,12 @@ public class InternetBot extends TelegramLongPollingBot {
                 if (roomNumber % 100 == 6 || roomNumber % 100 == 10 || roomNumber % 100 == 15){
                     return false;
                 } else {
-                    return ((roomNumber >= 301 && roomNumber <= 1515)
+                    return ((roomNumber >= 201 && roomNumber <= 1515)
                             && (message.charAt(message.indexOf("(") + 1) == 'а'
                             || message.charAt(message.indexOf("(") + 1) == 'б'
                             || message.charAt(message.indexOf("(") + 1) == 'a'
                             || message.charAt(message.indexOf("(") + 1) == 'b')
-                            && (roomNumber % 100 > 0)
+                            && (roomNumber % 200 > 0)
                             && (roomNumber % 100 <= 15));
                 }
 
