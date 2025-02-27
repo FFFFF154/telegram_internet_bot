@@ -94,7 +94,7 @@ public class InternetBot extends TelegramLongPollingBot {
                                 "начиная с номера комнаты\n" +
                                 "Формат сообщения: 312(а) У меня проблемы с подключением интернета\n");
                         break;
-                    case "/guides":
+                    case "/guide":
                         sendGuides(chatId);
                         break;
                     default:
@@ -142,7 +142,7 @@ public class InternetBot extends TelegramLongPollingBot {
                 "Ты можешь использовать эти команды:\n" +
                 "/help - список команд\n" +
                 "/contact_us - связаться с админами\n" +
-                "/guides - гайды по подключению интернета";
+                "/guide - гайд по подключению интернета";
         sendAnswer(chatId, answer);
     }
 
@@ -174,7 +174,7 @@ public class InternetBot extends TelegramLongPollingBot {
     private void help(Long chatId) {
         String answer = "/help - список команд\n" +
                 "/contact_us - связаться с админами\n" +
-                "/guides - гайды по подключению интернета";
+                "/guide - гайд по подключению интернета";
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
         try {
@@ -224,9 +224,8 @@ public class InternetBot extends TelegramLongPollingBot {
         sendDocument.setChatId(chatId);
 
         ClassLoader classLoader = getClass().getClassLoader();
-        try (InputStream resource = classLoader.getResourceAsStream("Kak_podklyuchit_INET.pdf")) {
-            Path tempFile = Files.createTempFile("inet_", ".pdf");
-            //log.warn(tempFile.toString());
+        try (InputStream resource = classLoader.getResourceAsStream("гайд_по_подключению.pdf")) {
+            Path tempFile = Files.createTempFile("guide_inet_", ".pdf");
             Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
             File file = tempFile.toFile();
             sendDocument.setDocument(new InputFile(file));
@@ -238,19 +237,19 @@ public class InternetBot extends TelegramLongPollingBot {
             log.warn("Проблема с чтением файла");
         }
 
-        ClassLoader classLoader2 = getClass().getClassLoader();
-        try (InputStream resource = classLoader2.getResourceAsStream("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf")) {
-            Path tempFile = Files.createTempFile("password_", ".pdf");
-            Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
-            File file = tempFile.toFile();
-            sendDocument.setDocument(new InputFile(file));
-            execute(sendDocument);
-            Files.deleteIfExists(tempFile);
-        } catch (TelegramApiException e) {
-            log.warn("Проблема с telegram api");
-        } catch (IOException e) {
-            log.warn("Проблема с чтением файла");
-        }
+//        ClassLoader classLoader2 = getClass().getClassLoader();
+//        try (InputStream resource = classLoader2.getResourceAsStream("gde_vzyat_parol_i_login_dlya_podklyuchenia.pdf")) {
+//            Path tempFile = Files.createTempFile("password_", ".pdf");
+//            Files.copy(resource, tempFile, StandardCopyOption.REPLACE_EXISTING);
+//            File file = tempFile.toFile();
+//            sendDocument.setDocument(new InputFile(file));
+//            execute(sendDocument);
+//            Files.deleteIfExists(tempFile);
+//        } catch (TelegramApiException e) {
+//            log.warn("Проблема с telegram api");
+//        } catch (IOException e) {
+//            log.warn("Проблема с чтением файла");
+//        }
 
     }
 
