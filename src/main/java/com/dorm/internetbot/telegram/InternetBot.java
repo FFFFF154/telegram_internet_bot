@@ -147,12 +147,16 @@ public class InternetBot extends TelegramLongPollingBot {
     }
 
     private void redirect(String username, Integer messageId, Long chatId) {
-        //String answer = "@" + username + "\n";
         forwardMessage.setChatId(ID_OUR_CHANNEL);
+        String answer = "----------------------\n" +
+                "@" + username + "\n";
+        sendMessage.setChatId(ID_OUR_CHANNEL);
+        sendMessage.setText(answer);
         forwardMessage.setFromChatId(chatId);
         forwardMessage.setMessageId(messageId);
 
         try {
+            execute(sendMessage);
             execute(forwardMessage);
 
         } catch (TelegramApiException e) {
@@ -198,7 +202,7 @@ public class InternetBot extends TelegramLongPollingBot {
         } else if ((message.indexOf("(") == 3) || (message.indexOf("(") == 4)) {
             try {
                 int roomNumber = Integer.parseInt(message.substring(0, message.indexOf("(")));
-                if (roomNumber % 100 == 6 || roomNumber % 100 == 10 || roomNumber % 100 == 15){
+                if (roomNumber % 100 == 6 || roomNumber % 100 == 10 || roomNumber % 100 == 15) {
                     return false;
                 } else {
                     return ((roomNumber >= 201 && roomNumber <= 1515)
