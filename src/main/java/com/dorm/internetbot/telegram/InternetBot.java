@@ -66,13 +66,13 @@ public class InternetBot extends TelegramLongPollingBot {
                 } else {
                     if (checkMessage(message)) {
                         redirect(username, messageId, chatId);
-                        sendAnswer(chatId, "OK\nМы с Вами свяжемся\n" +
-                                "\n! Проверьте, что все пользователи могут ссылаться на Ваш аккаунт в тг!");
+                        sendAnswer(chatId, "OK\nМы с Вами свяжемся\n");
                         userState.setStateMap(chatId, BotState.DEFAULT);
                     } else {
                         sendAnswer(chatId, "Пожалуйста, введите корректный запрос\n" +
                                 "Например: 312(а) У меня проблемы с интернетом\n" +
-                                "Иначе введите /stop");
+                                "Иначе введите /stop\n" +
+                                "\n! Проверьте, что все пользователи могут ссылаться на Ваш аккаунт в тг!");
                         spam(messageId, chatId);
                     }
                 }
@@ -92,7 +92,8 @@ public class InternetBot extends TelegramLongPollingBot {
                         userState.setStateMap(chatId, BotState.WAIT_MESSAGE);
                         sendAnswer(chatId, "Опишите свою проблему, " +
                                 "начиная с номера комнаты\n" +
-                                "Формат сообщения: 312(а) У меня проблемы с подключением интернета\n");
+                                "Формат сообщения: 312(а) У меня проблемы с подключением интернета\n" +
+                                "\n! Проверьте, что все пользователи могут ссылаться на Ваш аккаунт в тг!");
                         break;
                     case "/guide":
                         sendGuides(chatId);
