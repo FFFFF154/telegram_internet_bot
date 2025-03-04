@@ -73,7 +73,7 @@ public class InternetBot extends TelegramLongPollingBot {
                                 "Например: 312(а) У меня проблемы с интернетом\n" +
                                 "Иначе введите /stop\n" +
                                 "\n! Проверьте, что все пользователи могут ссылаться на Ваш аккаунт в тг!");
-                        spam(messageId, chatId);
+                        spam(username, messageId, chatId);
                     }
                 }
 
@@ -100,12 +100,12 @@ public class InternetBot extends TelegramLongPollingBot {
                         break;
                     default:
                         sendAnswer(chatId, COMMAND_ERROR);
-                        spam(messageId, chatId);
+                        spam(username, messageId, chatId);
                 }
 
             } else {
                 sendAnswer(chatId, "Пожалуйста, отправьте команду");
-                spam(messageId, chatId);
+                spam(username, messageId, chatId);
             }
 
         } else if (update.getMessage().hasPhoto()) { // мегахуйня
@@ -165,11 +165,16 @@ public class InternetBot extends TelegramLongPollingBot {
         }
     }
 
-    private void spam(Integer messageId, Long chatId) {
+    private void spam(String username, Integer messageId, Long chatId) {
+        sendMessage.setChatId(ID_SPAM_CHANNEL);
+        String answer = "----------------------\n" +
+                "@" + username + "\n";
+        sendMessage.setText(answer);
         forwardMessage.setChatId(ID_SPAM_CHANNEL);
         forwardMessage.setFromChatId(chatId);
         forwardMessage.setMessageId(messageId);
         try {
+            execute(sendMessage);
             execute(forwardMessage);
         } catch (TelegramApiException e) {
 
